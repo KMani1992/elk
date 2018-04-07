@@ -1,0 +1,266 @@
+https://www.youtube.com/watch?v=zX2I7-aIldE
+
+#select * from
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+#select * from 
+GET product/productsku/_search
+
+#select only particular field
+GET product/productsku/_search
+{
+  "query":{
+    "match_all": {}
+  },
+  "_source": "product*"
+}
+
+#like and and/or - operator
+GET product/productsku/_search
+{
+  "query": {
+    "match": {
+      "brand_name": {
+        "query": "zewa massage",
+        "operator": "or"
+      }
+    }
+  }
+}
+
+
+#like and and - must
+GET product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"term": {
+          "brand_name": ""
+        }},
+        {
+          "term": {
+            "brand_name": "massage"
+          }
+        }
+        
+      ]
+    }
+  }
+}
+
+#like and or - should
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {"term": {
+          "brand_name": {
+            "value": "massage"
+          }
+        }},{
+          "term": {
+            "brand_name": {
+              "value": "zewa"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+GET /product/productsku/_search
+{
+  "query": {"match_all": {}},
+  "_source": "brand_name"
+}
+
+# match pharse
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match_phrase": {
+          "brand_name": "master massage"
+        }}
+      ]
+    }
+  },
+  "_source": "brand_name"
+}
+
+
+#same value match in multiple fields
+GET /product/productsku/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "massage zewa",
+      "fields": ["brand_name","product_name"]
+    }
+  }
+}
+
+#same value in many columns (specify prefix)
+GET /product/productsku/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "massage zewa",
+      "type": "cross_fields", 
+      "fields": ["product_name","brand_name"]
+    }
+  }  
+}
+
+#use = and <> operator
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        {
+          "match": {
+            "brand_name": "zewa"
+          }
+        }
+      ]
+    }
+  }
+}
+
+#Note:-
+#operator in sql - operator in elasticsearch
+# = - match
+# and - must
+# or - should
+# like - term
+
+#query with IS NOT Null condition 
+GET /product/productsku/_search
+{
+  "query": {
+   "bool": {
+     "filter": {
+       "exists": {
+         "field": "brand_name"
+       }
+     }
+   }
+  },
+  "_source": "brand_name"
+}
+
+
+#query with is null condition
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "missing": {
+          "field": "brand_name"
+        }
+      }
+    }
+  }
+}
+
+
+#search with prefix
+GET /product/productsku/_search
+{
+  "query": {
+    "prefix": {
+      "brand_name": {
+        "value": "m"
+      }
+    }
+  }
+}
+
+GET /product/productsku/_search
+{
+  "_source": "*price*"
+}
+
+#filed value comparission
+GET /product/productsku/_search
+{
+  "query": {
+    "script":  "doc['brand_name'].value == 'hi'"
+    
+  },
+  "_source": ["sale_price","product_name"]
+}
+
+
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+     "must": [
+       {
+         "script": {
+           "script": "doc['brand_name'].value=doc['product_name'].value",
+           "lang": "painless"
+         }
+       }
+     ] 
+    }
+  }
+}
+
+
+GET /product/productsku/_mapping
+
+GET /product/productsku/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+         "script": {
+           "script": {
+             "source" :"doc['product_type.exact'].value == doc['product_type.exact'].value",
+            "lang"   : "painless"
+           }
+         } 
+        }
+      ]
+    }
+  }
+}
+
+
+
+GET /_search
+{
+    "query": {
+        "bool" : {
+            "must" : {
+                "script" : {
+                    "script" : {
+                        "source" : "doc['num1'].value > params.param1",
+                        "lang"   : "painless",
+                        "params" : {
+                            "param1" : 5
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
